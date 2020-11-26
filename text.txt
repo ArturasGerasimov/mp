@@ -1,0 +1,29 @@
+
+Create a small web application that displays public country holidays. Use a JSON API from https://kayaposoft.com/enrico/ to get a data.
+
+Requirements for the Application
+
+1. User should be able to search public holidays for a specific country and year combination.
+2. A search results should contains:
+   +   * public holidays list grouped by a month
+   +   * total amount of a public holidays
+       * status(workday, free day, holiday) for a current day
+       * the maximum number of free(free day + holiday) days in a row, which will be in the selected country year
+3. After a search, country and year combination public holidays from API should be saved to a database, so repeated searches should not make requests to a API, but should query a database.
+4. Deployment instructions.
+
+Nice to have
+
+Unit tests
+URLs smoke tests
+Docker based development environment
+Requirements
+
+Framework - Symfony
+Frontend - Bootstrap
+Database - MySQL
+Version control - GIT(bitbucket, github or gitlab)
+Deployment - project must be placed on the internet and publicly available (free hosting available at heroku.com)
+
+Būtų puiku jei šią užduotį ir testą atliktum per savaitę (7 dienas). Todėl pranešk jei kažkas bus neaišku ir turėsi klausimų ar užduočiai duotas laikas tau bus netinkamas.
+

@@ -1,0 +1,36 @@
+{% extends("base.html.twig") %}
+{% block body %}
+
+    <div class="container">
+        <h1 class="text-center my-5">Year is {{ year }} !</h1>
+        <div class="d-flex justify-content-between">
+            <div>
+                <h3>
+                    {{ data[0].api[0].name[1].lang }}
+                </h3>
+                {% for  info in data %}
+                    <li class="list-unstyled">Month:{{ info.api[2].date.month }}, Day of the week: {{ info.api[2].date
+                        .dayOfWeek }}
+                        - {{ info.api[2].name[1].text }}</li>
+                {% endfor %}
+            </div>
+            <div>
+                <h3>
+                    {{ data[0].api[0].name[0].lang }}
+                 </h3>
+                {% for info in data %}
+                    <li class="list-unstyled">Month:{{ info.api[2].date.month }}, Day of the week: {{ info.api[2]
+                        .date.dayOfWeek }}
+                        - {{ info.api[2].name[0].text }}</li>
+                {% endfor %}
+            </div>
+        </div>
+        <div class=" my-5">
+            <p>Total holidays in this year: {{ total_holidays }}</p>
+        </div>
+
+        <a href="{{ path("main_page") }}">back to search</a>
+
+    </div>
+
+{% endblock %}
