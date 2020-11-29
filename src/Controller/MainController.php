@@ -55,10 +55,10 @@ class MainController extends AbstractController
                 $currentDay = date('d');
                 $currentMonth = date('m');
                 $currentYear = date('Y');
-                $getPublicHolyday = $this->getPublicHoliday($currentDay, $currentMonth, $currentYear, $country);
+                $getPublicHoliday = $this->getPublicHoliday($currentDay, $currentMonth, $currentYear, $country);
                 $getWorkDay = $this->getWorkDay($currentDay, $currentMonth, $currentYear, $country);
 
-                if ($getPublicHolyday['isPublicHoliday'] == true){
+                if ($getPublicHoliday['isPublicHoliday'] == true){
                     $chillOrNotToChill = "Today we relax, because it's holiday!";
                 } elseif ($getWorkDay['isWorkDay'] == true){
                     $chillOrNotToChill = "Today your work!";
@@ -66,14 +66,13 @@ class MainController extends AbstractController
                     $chillOrNotToChill = "Free day";
                 }
 
-
                 return $this->render('info/dates_new.html.twig', [
                     'data'           =>  $data,
                     'total_holidays' => count($data),
                     'year'           => $year,
-                    'chill_or_not'   => $chillOrNotToChill
+                    'chill_or_not'   => $chillOrNotToChill,
+                    'freeDaysAndHolidays' => $this->getFreeDaysAndHolidays($year, count($data))
                 ]);
-
             }
 
             if (count($findByCountryDb) != 0 && count($findByYearDb) != 0) {
@@ -96,10 +95,10 @@ class MainController extends AbstractController
                 $currentDay = date('d');
                 $currentMonth = date('m');
                 $currentYear = date('Y');
-                $getPublicHolyday = $this->getPublicHoliday($currentDay, $currentMonth, $currentYear, $country);
+                $getPublicHoliday = $this->getPublicHoliday($currentDay, $currentMonth, $currentYear, $country);
                 $getWorkDay = $this->getWorkDay($currentDay, $currentMonth, $currentYear, $country);
 
-                if ($getPublicHolyday['isPublicHoliday'] == true){
+                if ($getPublicHoliday['isPublicHoliday'] == true){
                     $chillOrNotToChill = "Today we relax, because it's holiday!";
                 } elseif ($getWorkDay['isWorkDay'] == true){
                     $chillOrNotToChill = "Today your work!";
@@ -108,16 +107,12 @@ class MainController extends AbstractController
                 }
 
                 return $this->render('info/dates_from_db.html.twig', [
-                    'data'           => $fintByYearAndCountry,
-                    'total_holidays' => $totalHolidays,
-                    'year'           => $year,
-                    'chill_or_not'   => $chillOrNotToChill
+                    'data'                => $fintByYearAndCountry,
+                    'total_holidays'      => $totalHolidays,
+                    'year'                => $year,
+                    'chill_or_not'        => $chillOrNotToChill,
+                    'freeDaysAndHolidays' => $this->getFreeDaysAndHolidays($year, $totalHolidays)
                 ]);
-
-            }
-
-            if ($form->isValid() == false){
-                echo "your input is not valid";
             }
         }
 
@@ -173,6 +168,27 @@ class MainController extends AbstractController
 
         return $response->toArray();
 
+    }
+
+    public function getFreeDaysAndHolidays ($year, $totalHolidays)
+    {
+        $monthWeekends = [];
+        for ($j = 1; $j <= 12; $j++){
+            $day_count = cal_days_in_month(CAL_GREGORIAN, $j, $year);
+            for ($i = 1; $i <= $day_count; $i++) {
+                $date = $year.'/'.$j.'/'.$i;
+                $get_name = date('l', strtotime($date));
+                $day_name = substr($get_name, 0, 3);
+                if($day_name != 'Mon' && $day_name != 'Tue' && $day_name != 'Wed' && $day_name != 'Thu' &&
+                    $day_name != 'Fri'){
+                    $monthWeekends[] = $i;
+                }
+            }
+        }
+
+        $freeDaysAndHolidays = count($monthWeekends) + $totalHolidays;
+
+        return $freeDaysAndHolidays;
     }
 
 
