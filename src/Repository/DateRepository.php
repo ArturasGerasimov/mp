@@ -32,7 +32,7 @@ class DateRepository extends ServiceEntityRepository
             ->orderBy('d.id', 'ASC')
             ->setMaxResults(100)
             ->getQuery()
-            ->getResult()
+            ->getScalarResult()
         ;
     }
 
@@ -44,22 +44,21 @@ class DateRepository extends ServiceEntityRepository
             ->orderBy('d.id', 'ASC')
             ->setMaxResults(100)
             ->getQuery()
-            ->getResult()
+            ->getScalarResult()
             ;
     }
 
-
-
-    /*
-        public function findByCountry($value): ?Country
-        {
-            return $this->createQueryBuilder('d')
-                ->andWhere('d.exampleField = :val')
-                ->setParameter('val', $value)
-                ->getQuery()
-                ->getOneOrNullResult()
+    public function findByTwoParameters($country, $year)
+    {
+        return $this->createQueryBuilder('d' )
+            ->andWhere('d.year = :val', 'd.country = :index')
+            ->setParameter('val', $year)
+            ->setParameter('index', $country)
+            ->orderBy('d.id', 'ASC')
+            ->setMaxResults(100)
+            ->getQuery()
+            ->getScalarResult()
             ;
-        }*/
-
+    }
 
 }

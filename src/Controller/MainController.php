@@ -31,19 +31,20 @@ class MainController extends AbstractController
         $form = $this->createForm(DateType::class, $new_date);
         $form->handleRequest($request);
 
+        $supportedCountries = $this->supportedCountries();
+
         if ($form->isSubmitted() && $form->isValid()) {
 
             $new_date = $form->getData();
             $year = $new_date->getYear();
             $country = $new_date->getCountry();
 
-            $findCountryDb = $this->getDoctrine()->getRepository(Date::class)->findByCountry($country);
-            $findYearDb = $this->getDoctrine()->getRepository(Date::class)->findByYear($year);
+            $findByCountryDb = $this->getDoctrine()->getRepository(Date::class)->findByCountry($country);
+            $findByYearDb = $this->getDoctrine()->getRepository(Date::class)->findByYear($year);
 
-            if (count($findCountryDb) == 0 || count($findYearDb) == 0) {
+            if (count($findByCountryDb) == 0 || count($findByYearDb) == 0) {
 
                 $data= $this->fetchEnricoInformation($year, $country);
-
                 $new_date->setYear($year);
                 $new_date->setCountry($country);
                 $new_date->setApi($data);
@@ -51,29 +52,78 @@ class MainController extends AbstractController
                 $entityManager->persist($new_date);
                 $entityManager->flush();
 
+                $currentDay = date('d');
+                $currentMonth = date('m');
+                $currentYear = date('Y');
+                $getPublicHolyday = $this->getPublicHoliday($currentDay, $currentMonth, $currentYear, $country);
+                $getWorkDay = $this->getWorkDay($currentDay, $currentMonth, $currentYear, $country);
+
+                if ($getPublicHolyday['isPublicHoliday'] == true){
+                    $chillOrNotToChill = "Today we relax, because it's holiday!";
+                } elseif ($getWorkDay['isWorkDay'] == true){
+                    $chillOrNotToChill = "Today your work!";
+                } else {
+                    $chillOrNotToChill = "Free day";
+                }
+
+
                 return $this->render('info/dates_new.html.twig', [
                     'data'           =>  $data,
                     'total_holidays' => count($data),
                     'year'           => $year,
+                    'chill_or_not'   => $chillOrNotToChill
                 ]);
 
-            } else {
-                $data = $findYearDb;
-
-//                dump($data);
-//                print_r($data);
-
-                return $this->render('info/dates_from_db.html.twig', [
-                    'data'           =>  $data,
-                    'total_holidays' => count($data),
-                    'year'           => $year,
-                ]);
             }
 
+            if (count($findByCountryDb) != 0 && count($findByYearDb) != 0) {
+
+                foreach ($findByCountryDb as $gedArray){
+                    $getCountry = $gedArray['d_country'];
+                }
+
+                foreach ($findByYearDb as $gedArray){
+                    $getYear = $gedArray['d_year'];
+                }
+
+                $fintByYearAndCountry = $this->getDoctrine()->getRepository(Date::class)->findByTwoParameters(
+                    $getCountry, $getYear);
+
+                foreach ($fintByYearAndCountry as $newArray){
+                    $totalHolidays = count($newArray['d_api']);
+                }
+
+                $currentDay = date('d');
+                $currentMonth = date('m');
+                $currentYear = date('Y');
+                $getPublicHolyday = $this->getPublicHoliday($currentDay, $currentMonth, $currentYear, $country);
+                $getWorkDay = $this->getWorkDay($currentDay, $currentMonth, $currentYear, $country);
+
+                if ($getPublicHolyday['isPublicHoliday'] == true){
+                    $chillOrNotToChill = "Today we relax, because it's holiday!";
+                } elseif ($getWorkDay['isWorkDay'] == true){
+                    $chillOrNotToChill = "Today your work!";
+                } else {
+                    $chillOrNotToChill = "Free day";
+                }
+
+                return $this->render('info/dates_from_db.html.twig', [
+                    'data'           => $fintByYearAndCountry,
+                    'total_holidays' => $totalHolidays,
+                    'year'           => $year,
+                    'chill_or_not'   => $chillOrNotToChill
+                ]);
+
+            }
+
+            if ($form->isValid() == false){
+                echo "your input is not valid";
+            }
         }
 
         return $this->render("main-page/index.html.twig", [
-            'form' => $form->createView(),
+            'form'              => $form->createView(),
+            'suportedCountries' => $supportedCountries
         ]);
     }
 
@@ -88,4 +138,42 @@ class MainController extends AbstractController
         return $response->toArray();
 
     }
+
+    public function getPublicHoliday($day, $month, $year, $country)
+    {
+
+        $response = $this->client->request(
+            'GET',
+            'https://kayaposoft.com/enrico/json/v2.0?action=isPublicHoliday&date='.$day.'-'.$month.'-'.$year.'&country='.$country.''
+        );
+
+        return $response->toArray();
+
+    }
+
+    public function getWorkDay($day, $month, $year, $country)
+    {
+
+        $response = $this->client->request(
+            'GET',
+            'https://kayaposoft.com/enrico/json/v2.0?action=isWorkDay&date='.$day.'-'.$month.'-'.$year.'&country='.$country.''
+        );
+
+        return $response->toArray();
+
+    }
+
+    public function supportedCountries()
+    {
+
+        $response = $this->client->request(
+            'GET',
+            'https://kayaposoft.com/enrico/json/v2.0?action=getSupportedCountries'
+        );
+
+        return $response->toArray();
+
+    }
+
+
 }

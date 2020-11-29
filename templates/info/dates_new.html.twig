@@ -1,34 +1,77 @@
 {% extends("base.html.twig") %}
 {% block body %}
 
-    <div class="container">
+    <div class="container-fluid  py-5">
         <h1 class="text-center my-5">Year is {{ year }} !</h1>
+        <a class="btn btn-info"  href="{{ path("main_page") }}" style="border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0">Back to search</a>
         <div class="d-flex justify-content-between">
-            <div>
-                <h3>
-                    {{ data[0].name[1].lang }}
-                </h3>
-                {% for info in data %}
-                    <li class="list-unstyled">Month:{{ info.date.month }}, Day of the week: {{ info.date.dayOfWeek }}
-                        - {{ info.name[1].text }}</li>
-                {% endfor %}
+            <div class="w-50">
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Month</th>
+                            <th scope="col">Day of the month</th>
+                            <th scope="col">Name of Holiday</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {% for section in data %}
+                                <tr>
+                                    <td>{{ section.date.month }}</td>
+                                    <td>{{ section.date.day }}</td>
+                                    <td>{{ section.name[1].text }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div>
-                <h3>
-                    {{ data[0].name[0].lang }}
-                 </h3>
-                {% for info in data %}
-                    <li class="list-unstyled">Month:{{ info.date.month }}, Day of the week: {{ info.date.dayOfWeek }}
-                        - {{ info.name[0].text }}</li>
-                {% endfor %}
+            <div class="w-50">
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Month</th>
+                            <th scope="col">Day of the month</th>
+                            <th scope="col">Name of Holiday</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {% for section in data %}
+                                <tr>
+                                    <td>{{ section.date.month }}</td>
+                                    <td>{{ section.date.day }}</td>
+                                    <td>{{ section.name[0].text }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div class=" my-5">
-            <p>Total holidays in this year: {{ total_holidays }}</p>
+    </div>
+
+    <div class="container-fluid">
+        <div class="w-100">
+            <table class="table">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Total holidays in this year</th>
+                    <th scope="col">Status of today day</th>
+                    <th scope="col">Maximum number of free day + holiday this year</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{ total_holidays }}</td>
+                    <td>{{ chill_or_not }}</td>
+                    <td>Currently unknown</td>
+                </tr>
+                </tbody>
+            </table>
         </div>
-
-        <a href="{{ path("main_page") }}">back to search</a>
-
     </div>
 
 {% endblock %}
